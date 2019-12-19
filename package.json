@@ -1,0 +1,23 @@
+{
+  "name": "kumpul-api",
+  "version": "1.0.0",
+  "description": "API for Kumpul Application",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sam1D",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.7",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "googleapis": "^46.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.24.0",
+    "nodemailer": "^6.4.2",
+    "pg": "^7.14.0"
+  }
+}
