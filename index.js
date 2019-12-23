@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const time = require('moment');
 const app = express();
-const routers = require('./routes/routers');
+const routes = require('./routes/routes');
 
 app.use(
     bodyParser.urlencoded({
@@ -12,7 +12,7 @@ app.use(
     })
 );
 app.use(bodyParser.json());
-routers(app);
+routes(app);
 
 require('dotenv').config();
 

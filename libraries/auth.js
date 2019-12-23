@@ -5,6 +5,16 @@ const saltRounds = 10;
 
 require('dotenv').config();
 
+exports.checkEmailValid = (email) => {
+    const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+
+    if(regex.test(email)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 // Check Username Exists
 exports.checkUsernameExists = (username, callback) => {
     database.query('SELECT COUNT(username) AS total FROM public.users WHERE username = $1', [username],
@@ -28,7 +38,7 @@ exports.createUser = (dataUser, callback) => {
         if (err) {
             return callback(err);
         } else {
-            database.query('INSERT INTO public.users_info(user_id, invite_id, name, status) VALUES ($1, $2, $3, $4)', [data.rows[0].id, dataUser.inviteId, dataUser.username, "Halo! Saya ada di Kumpul"],
+            database.query('INSERT INTO public.users_info(user_id, invite_id, name, gender, status) VALUES ($1, $2, $3, $4, $5)', [data.rows[0].id, dataUser.inviteId, dataUser.username, '?', "Halo! Saya ada di Kumpul"],
             (err) => {
                 if (err) {
                     return callback(err);

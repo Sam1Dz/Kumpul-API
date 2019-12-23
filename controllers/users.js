@@ -10,41 +10,47 @@ exports.userRegister = (req, res) => {
     let email = req.body.email;
     let username = req.body.username;
     let password = req.body.password;
+
     let inviteId = time().format('DDYYMMmmHHss');
+    let isEmailValid = authLib.checkEmailValid(email);
 
     if (email != "" && username != "" && password != "") {
-        authLib.checkUsernameExists(username, (err, exists) => {
-            if (err) {
-                responses.error("Error while Getting Users Data!", "ERROR_REQUESTING_DATABASE", 500, res);
-            } else {
-                if (exists != true) {
-                    authLib.hashPassword(password).then((newPassword) => {
-                        let dataUser = {
-                            username,
-                            newPassword,
-                            email,
-                            inviteId
-                        }
-    
-                        authLib.createUser(dataUser, async (err, idUser) => {
-                            if (err) {
-                                responses.error("Error while Inserting User Data!", "ERROR_REQUESTING_DATABASE", 500, res);
-                            } else {
-                                let result = {
-                                    id : Number(idUser),
-                                    username: username,
-                                    token : await authLib.createJWT(idUser, username, password)
-                                }
-    
-                                responses.dataMapping("Register Success!", result, res);
-                            }
-                        });
-                    });
+        if (isEmailValid == true) {
+            authLib.checkUsernameExists(username, (err, exists) => {
+                if (err) {
+                    responses.error("Error while Getting Users Data!", "ERROR_REQUESTING_DATABASE", 500, res);
                 } else {
-                    responses.error("Username already exists", "USERNAME_EXISTS", 200, res);
+                    if (exists != true) {
+                        authLib.hashPassword(password).then((newPassword) => {
+                            let dataUser = {
+                                username,
+                                newPassword,
+                                email,
+                                inviteId
+                            }
+        
+                            authLib.createUser(dataUser, async (err, idUser) => {
+                                if (err) {
+                                    responses.error("Error while Inserting User Data!", "ERROR_REQUESTING_DATABASE", 500, res);
+                                } else {
+                                    let result = {
+                                        userId : Number(idUser),
+                                        username: username,
+                                        token : await authLib.createJWT(idUser, username, password)
+                                    }
+        
+                                    responses.dataMapping("Register Success!", result, res);
+                                }
+                            });
+                        });
+                    } else {
+                        responses.error("Username already exists", "USERNAME_EXISTS", 200, res);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            responses.error("Email not Valid", "INVALID_EMAIL", 200, res);
+        }
     } else {
         responses.error("Request body empty!", "EMPTY_REQUEST", 200, res);
     }
@@ -72,7 +78,7 @@ exports.userLogin = (req, res) => {
                                     let token = await authLib.createJWT(data.rows[0].id, username, password);
                                     
                                     let result = {
-                                        id : Number(data.rows[0].id),
+                                        userId : Number(data.rows[0].id),
                                         token : token
                                     }
     
@@ -93,4 +99,31 @@ exports.userLogin = (req, res) => {
     }
 
     console.log("Users Function (userLogin) Requested at " + time().format('DD/MM/YYYY HH:mm:ss'));
+}
+
+// User Edit
+exports.userEdit = (req, res) => {
+    let userId = req.params.id;
+    let name = req.body.name;
+    let gender = req.body.gender;
+    let status = req.body.status;
+
+    if (userId != "" && name != "") {
+        database.query('UPDATE public.users_info SET name=$1, gender=$2, status=$3 WHERE user_id = $4', [name, gender, status, userId],
+        (err) => {
+            if (err) {
+                responses.error("Error while Updating Users Data!", "ERROR_REQUESTING_DATABASE", 500, res);
+            } else {
+                let result = {
+                    userId, name, gender, status
+                }
+
+                responses.dataMapping("Update User Success!", result, res);
+            }
+        });
+    } else {
+        responses.error("Request body empty!", "EMPTY_REQUEST", 200, res);
+    }
+
+    console.log("Users Function (userEdit) Requested at " + time().format('DD/MM/YYYY HH:mm:ss'));
 }
