@@ -4,6 +4,7 @@ const time = require('moment');
 const responses = require('../libraries/responses');
 const database = require('../databases/connection');
 const authLib = require('../libraries/auth');
+const generateInitialNameLib = require('../libraries/generateInitialName');
 
 // User Register
 exports.userRegister = (req, res) => {
@@ -36,6 +37,7 @@ exports.userRegister = (req, res) => {
                                     let result = {
                                         userId : Number(idUser),
                                         username: username,
+                                        initialName: generateInitialNameLib.generateInitialName(username),
                                         token : await authLib.createJWT(idUser, username, password)
                                     }
         
@@ -107,6 +109,7 @@ exports.userEdit = (req, res) => {
     let name = req.body.name;
     let gender = req.body.gender;
     let status = req.body.status;
+    let initialName = generateInitialNameLib.generateInitialName(name);
 
     if (userId != "" && name != "") {
         database.query('UPDATE public.users_info SET name=$1, gender=$2, status=$3 WHERE user_id = $4', [name, gender, status, userId],
@@ -115,7 +118,7 @@ exports.userEdit = (req, res) => {
                 responses.error("Error while Updating Users Data!", "ERROR_REQUESTING_DATABASE", 500, res);
             } else {
                 let result = {
-                    userId, name, gender, status
+                    userId, name, initialName, gender, status
                 }
 
                 responses.dataMapping("Update User Success!", result, res);
